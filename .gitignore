@@ -1,0 +1,13 @@
+*.bin
+*.exe
+*.tar.xz
+__pycache__
+build
+dfu-util*
+dist
+Include
+Lib
+Scripts
+*.spec
+*.cfg
+*.swp
