@@ -36,3 +36,6 @@ It most likely isn't in the same folder. You really do need to extract both
 
 ### The flashing fails with an error message about a corrupted device
 TODO
+
+## If you want to modify it
+Be my guest. The original plan was to licence this using WTFPL, but dfu-utils is GPL software, therefore DFUWrapper has to be GPL as well.
