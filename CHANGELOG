@@ -1,0 +1,7 @@
+v1.0b:
+- Initial release
+
+v1.1b:
+- Overhauled the README in several places to give clearer, largely platform-agnostic instructions
+- Added multiplatform support
+- The actual flashing call now performs a mass-erase operation during the process

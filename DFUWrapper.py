@@ -1,19 +1,31 @@
-import os, re, subprocess, tkinter, tkinter.filedialog, tkinter.messagebox, traceback
+import os, platform, re, subprocess, tkinter, tkinter.filedialog, tkinter.messagebox, traceback
 from tkinter import *
 from sys import exit
 
+# Debug stuff
+versionString = "1.1b"
 debugLevel = 2
 
 filenameExt = ""
 device = ""
 cmd = ""
 
+# OS detection
+dfu = ""
+
+print(f"DFUWrapper v{versionString}")
+
+if platform.system() == "Windows":
+    dfu = os.path.join(os.getcwd(), "dfu-util-static.exe")
+else:
+    dfu = "/usr/bin/dfu-util"
+
 try:
     # Get list of devices
     if debugLevel > 0:
-        print("Scanning for DFU devices via \"dfu-util-static.exe -l\"\n")
+        print("Scanning for DFU devices")
     try:
-        out = subprocess.run([os.path.join(os.getcwd(), "dfu-util-static.exe"), "-l"], shell=True, capture_output=True, check=True).stdout.decode().split("\r\n")
+        out = subprocess.run([dfu, "-l"], shell=True, capture_output=True, check=True).stdout.decode().split("\r\n")
     except Exception as e:
         tkinter.messagebox.showerror("Unhandled exception", traceback.format_exc())
         exit(-1)
@@ -67,7 +79,7 @@ try:
             global cmd
 
             filenameExt.set(tkinter.filedialog.askopenfilename(filetypes=[("BIN files", "*.bin")], initialdir=".", title="Select file"))
-            cmd = ["dfu-util-static.exe", "-d", device.get(), "-a", "0", "-s", "0x08000000:leave", "-D", filenameExt.get()]
+            cmd = [dfu, "-d", device.get(), "-a", "0", "-s", "0x08000000:leave:mass-erase:force", "-D", filenameExt.get()]
             if debugLevel > 0:
                 print("Selected file {}\n".format(filenameExt.get()))
             if debugLevel > 1:
