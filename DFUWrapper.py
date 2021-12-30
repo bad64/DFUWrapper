@@ -3,7 +3,7 @@ from tkinter import *
 from sys import exit
 
 # Debug stuff
-versionString = "1.1b"
+versionString = "1.2b"
 debugLevel = 2
 
 filenameExt = ""
@@ -28,7 +28,38 @@ try:
         out = subprocess.run([dfu, "-l"], shell=True, capture_output=True, check=True).stdout.decode().split("\r\n")
     except Exception as e:
         tkinter.messagebox.showerror("Unhandled exception", traceback.format_exc())
-        exit(-1)
+        if platform.system() == "Windows":
+            downloadDialog = tkinter.messagebox.askquestion("", "Should DFUWrapper attempt to retrieve the dfu-util-static binary on its own ?")
+
+            if downloadDialog == "yes":
+                try:
+                    import re, requests, shutil
+                    from bs4 import BeautifulSoup
+
+                    dlpage = requests.get("http://dfu-util.sourceforge.net/releases/")
+                    soup = BeautifulSoup(dlpage.text, 'html.parser')
+
+                    fileName = soup.find_all('a', href = re.compile(".tar.xz$"))[-1]["href"]
+                    link = "http://dfu-util.sourceforge.net/releases/" + fileName
+
+                    with requests.get(link, stream=True) as r, open(fileName, "wb") as f:
+                        for chunk in r.iter_content():
+                            f.write(chunk)
+
+                    shutil.unpack_archive(fileName, "tmp")
+                    shutil.move("tmp/{}/win64/dfu-util-static.exe".format(fileName.replace(".tar.xz","")), "./dfu-util-static.exe")
+                    shutil.rmtree("tmp")
+                    os.remove(fileName)
+
+                    tkinter.messagebox.showinfo("", "Done !\nPlease restart DFUWrapper for the changes to take effect.")
+                    exit(0)
+                except Exception as e:
+                    tkinter.messagebox.showerror("Unhandled exception", traceback.format_exc())
+                    exit(-1)
+            else:
+                exit(-1)
+        else:
+            exit(-1)
 
     devices = []
     for line in out:

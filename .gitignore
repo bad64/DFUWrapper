@@ -1,6 +1,8 @@
 *.bin
 *.exe
 *.tar.xz
+*.tar.gz
+*.zip
 __pycache__
 build
 dfu-util*
